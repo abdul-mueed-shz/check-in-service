@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8"/>
+    <meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+    <title th:text="${companyName} + ' — Timesheet'">Timesheet</title>
+    <style>
+        /* Minimal, email-friendly styles */
+        body {
+            margin: 0;
+            padding: 0;
+            font-family: Arial, Helvetica, sans-serif;
+            background: #f6f8fa;
+            color: #111
+        }
+
+        .container {
+            max-width: 680px;
+            margin: 20px auto;
+            background: #fff;
+            border-radius: 6px;
+            overflow: hidden;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.06)
+        }
+
+        .header {
+            background: linear-gradient(90deg, #2b70d9, #4aa3ff);
+            color: #fff;
+            padding: 16px 20px
+        }
+
+        .header h1 {
+            margin: 0;
+            font-size: 18px;
+            font-weight: 600
+        }
+
+        .content {
+            padding: 16px 20px
+        }
+
+        .card {
+            background: #fbfdff;
+            border: 1px solid #eef3fb;
+            padding: 16px;
+            border-radius: 6px;
+            font-size: 15px;
+            color: #1f2937;
+            text-align: left;
+        }
+
+        .value {
+            display: block;
+            margin-top: 8px;
+            font-weight: 700;
+            font-size: 28px;
+            color: #0b3a80;
+        }
+
+        .note {
+            color: #6b7280;
+            margin-top: 8px;
+            font-size: 13px
+        }
+
+        @media (max-width: 480px) {
+            .header h1 {
+                font-size: 16px
+            }
+
+            .value {
+                font-size: 22px
+            }
+        }
+    </style>
+</head>
+<body>
+<article aria-label="Timesheet summary" class="container">
+    <header class="header" role="banner">
+        <h1 th:text="${displayName} + ' — Timesheet'">Name — Timesheet</h1>
+    </header>
+
+    <main class="content">
+        <section aria-label="Tracked hours" class="card">
+            <div>Tracked hours for the period:</div>
+            <span class="value" th:text="${trackedHours != null ? trackedHours : 0}">0</span>
+        </section>
+    </main>
+</article>
+</body>
+</html>
