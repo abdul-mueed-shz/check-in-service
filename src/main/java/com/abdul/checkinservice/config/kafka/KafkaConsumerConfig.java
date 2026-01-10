@@ -20,9 +20,6 @@ public class KafkaConsumerConfig {
 
     private final KafkaProperties kafkaProperties;
 
-    /**
-     * Consumer factory for email topic
-     */
     @Bean
     public ConsumerFactory<String, EmployeeTrackedHoursDto> emailConsumerFactory() {
         return new DefaultKafkaConsumerFactory<>(

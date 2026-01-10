@@ -1,0 +1,23 @@
+package com.abdul.checkinservice.adapter.out.api;
+
+import com.abdul.checkinservice.adapter.out.exception.RecordingServiceException;
+import com.abdul.checkinservice.domain.common.model.EmployeeTrackedHoursDto;
+import io.github.resilience4j.circuitbreaker.annotation.CircuitBreaker;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.stereotype.Component;
+
+@Slf4j
+@Component
+public class RecordingServiceApiClient {
+
+    public static final String CIRCUIT_BREAKER_NAME = "recordingService";
+
+    @CircuitBreaker(name = CIRCUIT_BREAKER_NAME)
+    public void notifyRecordingService(EmployeeTrackedHoursDto dto) {
+        if (Math.random() < 0.7) {
+            throw new RecordingServiceException("Failed to process tracking hours for employee " + dto.employeeId());
+        }
+        log.info("Recording service notified successfully for recordId: {}", dto.recordId());
+    }
+}
+
