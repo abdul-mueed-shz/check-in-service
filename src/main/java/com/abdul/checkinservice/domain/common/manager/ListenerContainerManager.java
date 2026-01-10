@@ -1,5 +1,6 @@
-package com.abdul.checkinservice.config.kafka;
+package com.abdul.checkinservice.domain.common.manager;
 
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.ObjectProvider;
 import org.springframework.kafka.config.KafkaListenerEndpointRegistry;
@@ -8,23 +9,10 @@ import org.springframework.stereotype.Component;
 
 @Slf4j
 @Component
-public class KafkaListenerContainerManager {
-
-    public static final String RECORDING_SERVICE_LISTENER_ID = "recordingServiceListener";
+@RequiredArgsConstructor
+public class ListenerContainerManager {
 
     private final ObjectProvider<KafkaListenerEndpointRegistry> registryProvider;
-
-    public KafkaListenerContainerManager(ObjectProvider<KafkaListenerEndpointRegistry> registryProvider) {
-        this.registryProvider = registryProvider;
-    }
-
-    public void pauseRecordingServiceListener() {
-        pauseListener(RECORDING_SERVICE_LISTENER_ID);
-    }
-
-    public void resumeRecordingServiceListener() {
-        resumeListener(RECORDING_SERVICE_LISTENER_ID);
-    }
 
     public void pauseListener(String listenerId) {
         MessageListenerContainer container = getMessageListenerContainer(listenerId);
@@ -33,7 +21,7 @@ public class KafkaListenerContainerManager {
             container.pause();
             return;
         }
-        log.debug("Listener already paused: {}", listenerId);
+        log.debug("Listener already paused or not found: {}", listenerId);
     }
 
     public void resumeListener(String listenerId) {
@@ -43,7 +31,7 @@ public class KafkaListenerContainerManager {
             container.resume();
             return;
         }
-        log.debug("Listener already running: {}", listenerId);
+        log.debug("Listener already running or not found: {}", listenerId);
     }
 
     private MessageListenerContainer getMessageListenerContainer(String listenerId) {

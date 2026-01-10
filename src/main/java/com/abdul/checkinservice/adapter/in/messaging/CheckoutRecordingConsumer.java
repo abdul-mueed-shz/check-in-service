@@ -2,10 +2,10 @@ package com.abdul.checkinservice.adapter.in.messaging;
 
 import com.abdul.checkinservice.adapter.out.api.RecordingServiceApiClient;
 import com.abdul.checkinservice.adapter.out.exception.RecordingServiceException;
-import com.abdul.checkinservice.config.kafka.KafkaListenerContainerManager;
 import com.abdul.checkinservice.domain.common.model.EmployeeTrackedHoursDto;
 import com.abdul.checkinservice.domain.timesheet.enums.RecordingServiceAckEnum;
 import com.abdul.checkinservice.domain.timesheet.port.in.UpdateTimeSheetUseCase;
+import io.github.resilience4j.circuitbreaker.CallNotPermittedException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.kafka.annotation.DltHandler;
@@ -16,10 +16,6 @@ import org.springframework.messaging.handler.annotation.Header;
 import org.springframework.retry.annotation.Backoff;
 import org.springframework.stereotype.Component;
 
-/**
- * Kafka consumer for recording service notifications.
- * Uses circuit breaker to handle external service outages gracefully.
- */
 @Slf4j
 @Component
 @RequiredArgsConstructor
@@ -30,11 +26,11 @@ public class CheckoutRecordingConsumer {
 
     @RetryableTopic(
             backoff = @Backoff(delay = 2000L, multiplier = 2.0, maxDelay = 30000L),
-            attempts = "10",
-            include = {RecordingServiceException.class}
+            attempts = "5",
+            include = {RecordingServiceException.class, CallNotPermittedException.class}
     )
     @KafkaListener(
-            id = KafkaListenerContainerManager.RECORDING_SERVICE_LISTENER_ID,
+            id = "${app.services.recording-service.listener-id}",
             topics = "${spring.kafka.topics.recording-service-topic}",
             groupId = "${spring.kafka.groups.recording-service-group}",
             containerFactory = "recordingServiceKafkaListenerContainerFactory"

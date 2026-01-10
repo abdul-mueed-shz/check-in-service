@@ -10,9 +10,7 @@ import org.springframework.stereotype.Component;
 @Component
 public class RecordingServiceApiClient {
 
-    public static final String CIRCUIT_BREAKER_NAME = "recordingService";
-
-    @CircuitBreaker(name = CIRCUIT_BREAKER_NAME)
+    @CircuitBreaker(name = "${app.services.recording-service.name}")
     public void notifyRecordingService(EmployeeTrackedHoursDto dto) {
         if (Math.random() < 0.7) {
             throw new RecordingServiceException("Failed to process tracking hours for employee " + dto.employeeId());

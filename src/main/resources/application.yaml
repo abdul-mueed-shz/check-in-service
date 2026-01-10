@@ -46,6 +46,26 @@ spring:
 app:
   shift:
     max-duration: 10
+  services:
+    recording-service:
+      name: recordingService
+      listener-id: recordingServiceListener
+      circuit-breaker-enabled: true
+      url: ${RECORDING.SERVICE.URL:http://localhost:8090}
+
+resilience4j:
+  circuitbreaker:
+    configs:
+      default:
+        slidingWindowSize: 3
+        minimumNumberOfCalls: 3
+        failureRateThreshold: 80
+        waitDurationInOpenState: 10s
+        permittedNumberOfCallsInHalfOpenState: 2
+        automaticTransitionFromOpenToHalfOpenEnabled: true
+    instances:
+      recordingService:
+        baseConfig: default
 
 logging:
   level:
