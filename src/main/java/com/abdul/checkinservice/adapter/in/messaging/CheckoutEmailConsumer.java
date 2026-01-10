@@ -2,6 +2,8 @@ package com.abdul.checkinservice.adapter.in.messaging;
 
 import com.abdul.checkinservice.domain.common.model.EmployeeTrackedHoursDto;
 import com.abdul.checkinservice.domain.email.port.in.SendTrackedHoursEmailUseCase;
+import com.abdul.checkinservice.domain.timesheet.enums.EmailStatusEnum;
+import com.abdul.checkinservice.domain.timesheet.port.in.UpdateTimeSheetUseCase;
 import com.abdul.checkinservice.domain.user.model.UserDto;
 import com.abdul.checkinservice.domain.user.port.in.GetUserByEmployeeId;
 import jakarta.mail.MessagingException;
@@ -23,6 +25,7 @@ import org.springframework.stereotype.Component;
 public class CheckoutEmailConsumer {
     private final SendTrackedHoursEmailUseCase sendTrackedHoursEmailUseCase;
     private final GetUserByEmployeeId getUserByEmployeeId;
+    private final UpdateTimeSheetUseCase updateTimeSheetUseCase;
 
     @RetryableTopic(
             backoff = @Backoff(delay = 3000L, multiplier = 1.5),
@@ -49,8 +52,11 @@ public class CheckoutEmailConsumer {
                 userDto.getEmail(),
                 userDto.getDisplayName(),
                 employeeTrackedHoursDto.trackedHours());
-
         log.info("Email sent successfully to: {}", userDto.getEmail());
+        updateTimeSheetUseCase.updateEmailDeliveryStatus(
+                employeeTrackedHoursDto.recordId(),
+                EmailStatusEnum.SENT
+        );
     }
 
     @DltHandler
@@ -59,5 +65,9 @@ public class CheckoutEmailConsumer {
                           @Header(KafkaHeaders.EXCEPTION_MESSAGE) String exceptionMessage) {
         log.error("Message moved to DLT. Topic: {}, EmployeeId: {}, Error: {}",
                 topic, employeeTrackedHoursDto.employeeId(), exceptionMessage);
+        updateTimeSheetUseCase.updateEmailDeliveryStatus(
+                employeeTrackedHoursDto.recordId(),
+                EmailStatusEnum.FAILED
+        );
     }
 }

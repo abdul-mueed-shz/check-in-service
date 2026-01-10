@@ -44,6 +44,7 @@ public class EmployeeCheckoutUseCaseImpl implements EmployeeCheckoutUseCase {
                 updatedEmployeeTimeSheet.getCheckIn(), updatedEmployeeTimeSheet.getCheckOut());
 
         EmployeeTrackedHoursDto employeeTrackedHoursDto = new EmployeeTrackedHoursDto(
+                updatedEmployeeTimeSheet.getId(),
                 updatedEmployeeTimeSheet.getEmployeeId(),
                 hoursWorked
         );

@@ -10,4 +10,6 @@ public interface TimeSheetRepository {
     TimeSheetDto upsertTimeSheet(TimeSheetDto timeSheetDto);
 
     List<TimeSheetDto> getAllByEmployeeId(Long employeeId);
+
+    TimeSheetDto getByRecordId(Long recordId);
 }

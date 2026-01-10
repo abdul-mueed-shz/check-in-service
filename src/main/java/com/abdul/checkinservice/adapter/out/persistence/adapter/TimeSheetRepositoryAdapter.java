@@ -34,4 +34,11 @@ public class TimeSheetRepositoryAdapter implements TimeSheetRepository {
     public List<TimeSheetDto> getAllByEmployeeId(Long employeeId) {
         return timeSheetMapper.toDtoList(timesheetJpaRepository.findAllByEmployeeId(employeeId));
     }
+
+    @Override
+    public TimeSheetDto getByRecordId(Long recordId) {
+        Optional<TimeSheet> timeSheetOptional =
+                timesheetJpaRepository.findById(recordId);
+        return timeSheetOptional.map(timeSheetMapper::toDto).orElse(null);
+    }
 }
