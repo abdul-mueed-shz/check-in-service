@@ -9,7 +9,6 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.mail.SimpleMailMessage;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.mail.javamail.MimeMessageHelper;
-import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 import org.thymeleaf.TemplateEngine;
 import org.thymeleaf.context.Context;
@@ -23,7 +22,6 @@ public class SendEmailUseCaseImpl implements SendEmailUseCase {
     @Value("${spring.mail.username}")
     private String fromEmail;
 
-    @Async("threadPoolTaskExecutor")
     @Override
     public void sendTextEmail(String toEmail, String subject, String body) {
         SimpleMailMessage message = new SimpleMailMessage();
@@ -34,7 +32,6 @@ public class SendEmailUseCaseImpl implements SendEmailUseCase {
         mailSender.send(message);
     }
 
-    @Async("threadPoolTaskExecutor")
     public void sendTemplateEmail(TemplateEmailRequest request) throws MessagingException {
 
         Context context = new Context();

@@ -46,3 +46,9 @@ spring:
 app:
   shift:
     max-duration: 10
+
+logging:
+  level:
+    org.springframework.kafka: INFO
+    org.springframework.kafka.retrytopic: DEBUG
+    com.abdul.checkinservice: DEBUG
