@@ -32,6 +32,17 @@ spring:
           starttls:
             enable: true
 
+  kafka:
+    enabled: ${KAFKA.ENABLED:false}
+    bootstrap-servers: ${KAFKA.BOOTSTRAP.SERVERS:localhost:29092}
+    groups:
+      email-group: ${KAFKA.GROUPS.EMAILS:defaultEmailGroup}
+      recording-service-group: ${KAFKA.GROUPS.RECORD:defaultRecordingServiceGroup}
+    topics:
+      emails-topic: ${KAFKA.TOPICS.EMAILS:emails}
+      recording-service-topic: ${KAFKA.TOPICS.RECORD:notify-recording-service}
+
+
 app:
   shift:
     max-duration: 10

@@ -1,7 +1,9 @@
 package com.abdul.checkinservice.domain.timesheet.usecase;
 
 import com.abdul.checkinservice.adapter.out.mapper.TimeSheetMapper;
-import com.abdul.checkinservice.domain.email.port.in.SendTrackedHoursEmailUseCase;
+import com.abdul.checkinservice.adapter.out.messaging.CheckoutEmailProducer;
+import com.abdul.checkinservice.adapter.out.messaging.CheckoutRecordingProducer;
+import com.abdul.checkinservice.domain.common.model.EmployeeTrackedHoursDto;
 import com.abdul.checkinservice.domain.timesheet.model.TimeSheetDto;
 import com.abdul.checkinservice.domain.timesheet.port.in.EmployeeCheckoutUseCase;
 import com.abdul.checkinservice.domain.timesheet.port.out.TimeSheetRepository;
@@ -22,7 +24,8 @@ public class EmployeeCheckoutUseCaseImpl implements EmployeeCheckoutUseCase {
     private final TimeSheetRepository timeSheetRepository;
     private final TimeSheetMapper timeSheetMapper;
 
-    private final SendTrackedHoursEmailUseCase sendTrackedHoursEmailUseCase;
+    private final CheckoutEmailProducer checkoutEmailProducer;
+    private final CheckoutRecordingProducer checkoutRecordingProducer;
 
     @Transactional
     @Override
@@ -35,17 +38,17 @@ public class EmployeeCheckoutUseCaseImpl implements EmployeeCheckoutUseCase {
         );
         timeSheetRepository.upsertTimeSheet(updatedEmployeeTimeSheet);
         Integer hoursWorked = getWorkedHours(updatedEmployeeTimeSheet);
+
         log.info("Employee {} worked {} hours (checkIn={}, checkOut={})",
                 updatedEmployeeTimeSheet.getEmployeeId(), hoursWorked,
                 updatedEmployeeTimeSheet.getCheckIn(), updatedEmployeeTimeSheet.getCheckOut());
-        // Todo Send to message queue of emails to send email to user
-        // Todo Send to message queue of recording service to send timesheet data to the other service
-        // Todo Remove the test call below
-        sendTrackedHoursEmailUseCase.execute(
-                "abdulmueedshahbaz@gmail.com",
-                "Abdul Mueed",
+
+        EmployeeTrackedHoursDto employeeTrackedHoursDto = new EmployeeTrackedHoursDto(
+                updatedEmployeeTimeSheet.getEmployeeId(),
                 hoursWorked
         );
+        checkoutEmailProducer.produce(employeeTrackedHoursDto);
+        checkoutRecordingProducer.produce(employeeTrackedHoursDto);
         return updatedEmployeeTimeSheet;
     }
 

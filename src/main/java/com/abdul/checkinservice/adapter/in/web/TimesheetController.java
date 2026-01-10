@@ -4,6 +4,7 @@ import com.abdul.checkinservice.domain.common.model.MessageDto;
 import com.abdul.checkinservice.domain.timesheet.model.TimeSheetDto;
 import com.abdul.checkinservice.domain.timesheet.port.in.FetchEmployeeTimeSheetUseCase;
 import com.abdul.checkinservice.domain.timesheet.port.in.RecordEmployeeTimeDataUseCase;
+import com.fasterxml.jackson.core.JsonProcessingException;
 import jakarta.mail.MessagingException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
@@ -19,7 +20,9 @@ public class TimesheetController {
     private final FetchEmployeeTimeSheetUseCase fetchEmployeeTimeSheetUseCase;
 
     @PostMapping("/{employeeId}/record")
-    public ResponseEntity<MessageDto<TimeSheetDto>> recordEmployeeTimeData(@PathVariable Long employeeId) throws MessagingException {
+    public ResponseEntity<MessageDto<TimeSheetDto>> recordEmployeeTimeData(@PathVariable Long employeeId)
+            throws MessagingException,
+            JsonProcessingException {
         return ResponseEntity.ok(recordEmployeeTimeDataUseCase.execute(employeeId));
     }
 
