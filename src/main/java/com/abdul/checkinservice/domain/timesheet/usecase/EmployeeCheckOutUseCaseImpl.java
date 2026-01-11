@@ -60,13 +60,15 @@ public class EmployeeCheckOutUseCaseImpl implements EmployeeCheckOutUseCase {
     }
 
     private TimeSheetDto updateEmployeeTimeSheet(TimeSheetDto timeSheetDto) {
+        Timestamp checkoutTime = Timestamp.from(java.time.Instant.now());
         TimeSheetDto updatedEmployeeTimeSheet = timeSheetMapper.toUpdatedDto(
                 timeSheetDto,
                 TimeSheetDto.builder()
-                        .checkOut(Timestamp.from(java.time.Instant.now()))
+                        .checkOut(checkoutTime)
                         .build()
         );
         timeSheetRepository.upsertTimeSheet(updatedEmployeeTimeSheet);
+        log.info("Employee {} checked out successfully at {}", timeSheetDto.getEmployeeId(), checkoutTime);
         return updatedEmployeeTimeSheet;
     }
 

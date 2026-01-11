@@ -30,6 +30,7 @@ public class RecordEmployeeTimeDataUseCaseImpl implements RecordEmployeeTimeData
     public MessageDto<TimeSheetDto> execute(Long employeeId) {
         TimeSheetDto employeeTimeSheet = timeSheetRepository.getCurrentEmployeeTimeSheetById(employeeId);
         if (employeeTimeSheet == null) {
+            log.info("Employee {} checked in successfully", employeeId);
             TimeSheetDto timeSheetDto = employeeCheckInUseCase.execute(employeeId);
             return MessageDto.<TimeSheetDto>builder()
                     .message("Employee checked in successfully")
@@ -40,25 +41,29 @@ public class RecordEmployeeTimeDataUseCaseImpl implements RecordEmployeeTimeData
                 employeeTimeSheet.getCheckIn().toInstant(),
                 Instant.now());
         if (trackedHours > appProperties.getShift().getMaxDuration()) {
-            Integer shiftHours = trackedHours - (trackedHours - appProperties.getShift().getMaxDuration());
-            log.info("Employee {} missed his checkout after shift duration of {} hours, " +
-                            "Recording {} of his shift hours excluding {} extra hours and closing the shift",
-                    employeeId,
-                    appProperties.getShift().getMaxDuration(),
-                    shiftHours,
-                    trackedHours - shiftHours);
-            employeeCheckoutUseCase.checkoutWithDuration(employeeTimeSheet, shiftHours);
-            TimeSheetDto timeSheetDto = employeeCheckInUseCase.execute(employeeId);
-            log.info("Initiated new shift for employee {}", employeeId);
-            return MessageDto.<TimeSheetDto>builder()
-                    .message("Employee checked in successfully")
-                    .data(timeSheetDto)
-                    .build();
+            return handleMissedCheckout(employeeTimeSheet, trackedHours);
         }
         TimeSheetDto updateTimeSheetDto = employeeCheckoutUseCase.checkout(employeeTimeSheet);
         return MessageDto.<TimeSheetDto>builder()
                 .message("Employee checked out successfully")
                 .data(updateTimeSheetDto)
+                .build();
+    }
+
+    private MessageDto<TimeSheetDto> handleMissedCheckout(TimeSheetDto employeeTimeSheet, Integer trackedHours) {
+        Integer shiftHours = trackedHours - (trackedHours - appProperties.getShift().getMaxDuration());
+        log.info("Employee {} missed his checkout after shift duration of {} hours, " +
+                        "Recording {} of his shift hours excluding {} extra hours and closing the shift.",
+                employeeTimeSheet.getEmployeeId(),
+                appProperties.getShift().getMaxDuration(),
+                shiftHours,
+                trackedHours - shiftHours);
+        employeeCheckoutUseCase.checkoutWithDuration(employeeTimeSheet, shiftHours);
+        TimeSheetDto timeSheetDto = employeeCheckInUseCase.execute(employeeTimeSheet.getEmployeeId());
+        log.info("Initiated a new shift for employee {}", employeeTimeSheet.getEmployeeId());
+        return MessageDto.<TimeSheetDto>builder()
+                .message("Employee checked in successfully")
+                .data(timeSheetDto)
                 .build();
     }
 }

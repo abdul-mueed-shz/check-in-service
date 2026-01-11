@@ -31,7 +31,7 @@ public class CheckoutEmailConsumer {
             backoff = @Backoff(delay = 3000L, multiplier = 1.5),
             attempts = "5",
             topicSuffixingStrategy = TopicSuffixingStrategy.SUFFIX_WITH_INDEX_VALUE,
-            include = {MessagingException.class, Exception.class}
+            include = {MessagingException.class}
     )
     @KafkaListener(
             topics = "#{'${spring.kafka.topics.emails-topic}'}",
@@ -40,11 +40,12 @@ public class CheckoutEmailConsumer {
     )
     public void listen(EmployeeTrackedHoursDto employeeTrackedHoursDto,
                        @Header(KafkaHeaders.RECEIVED_TOPIC) String topic,
-                       @Header(value = KafkaHeaders.EXCEPTION_MESSAGE, required = false) String exceptionMessage) throws MessagingException {
-        log.info("Received message on topic: {}, employeeId: {}", topic, employeeTrackedHoursDto.employeeId());
+                       @Header(value = KafkaHeaders.EXCEPTION_MESSAGE,
+                               required = false) String exceptionMessage) throws MessagingException {
+        log.info("Processing email message for topic {}, to send a confirmation to employee {}", topic, employeeTrackedHoursDto.employeeId());
 
         if (exceptionMessage != null) {
-            log.warn("Retry attempt - Previous exception: {}", exceptionMessage);
+            log.warn("Trying to send an email again, Previous known exception: {}", exceptionMessage);
         }
 
         UserDto userDto = getUserByEmployeeId.execute(employeeTrackedHoursDto.employeeId());
@@ -52,22 +53,32 @@ public class CheckoutEmailConsumer {
                 userDto.getEmail(),
                 userDto.getDisplayName(),
                 employeeTrackedHoursDto.trackedHours());
-        log.info("Email sent successfully to: {}", userDto.getEmail());
+        log.info("Email sent successfully to employee: {} with email: {}",
+                employeeTrackedHoursDto.employeeId(),
+                userDto.getEmail());
+
         updateTimeSheetUseCase.updateEmailDeliveryStatus(
                 employeeTrackedHoursDto.recordId(),
                 EmailStatusEnum.SENT
         );
+        log.info("Timesheet status for email delivery set to {} for employee {}",
+                EmailStatusEnum.SENT,
+                employeeTrackedHoursDto.employeeId());
     }
 
     @DltHandler
     public void handleDlt(EmployeeTrackedHoursDto employeeTrackedHoursDto,
                           @Header(KafkaHeaders.RECEIVED_TOPIC) String topic,
                           @Header(KafkaHeaders.EXCEPTION_MESSAGE) String exceptionMessage) {
-        log.error("Message moved to DLT. Topic: {}, EmployeeId: {}, Error: {}",
+        log.error("Email message moved to DLT for Topic: {}, EmployeeId: {}, Error: {}",
                 topic, employeeTrackedHoursDto.employeeId(), exceptionMessage);
+
         updateTimeSheetUseCase.updateEmailDeliveryStatus(
                 employeeTrackedHoursDto.recordId(),
                 EmailStatusEnum.FAILED
         );
+        log.warn("Timesheet status for email delivery set to {} for employee {}",
+                EmailStatusEnum.FAILED,
+                employeeTrackedHoursDto.employeeId());
     }
 }

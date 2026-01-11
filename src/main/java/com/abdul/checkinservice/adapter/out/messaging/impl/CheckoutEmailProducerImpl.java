@@ -21,7 +21,9 @@ public class CheckoutEmailProducerImpl implements CheckoutEmailProducer {
 
     @Override
     public void produce(EmployeeTrackedHoursDto employeeTrackedHoursDto) {
-        log.info("Sending email confirmation to employee with tracked hours : {}", employeeTrackedHoursDto);
+        log.info("Queuing a call for email service to send a confirmation email to employee {} with tracked hours : {}",
+                employeeTrackedHoursDto.employeeId(),
+                employeeTrackedHoursDto);
         Message<EmployeeTrackedHoursDto> message = MessageBuilder
                 .withPayload(employeeTrackedHoursDto)
                 .setHeader(

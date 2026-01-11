@@ -35,29 +35,46 @@ public class CheckoutRecordingConsumer {
             groupId = "${spring.kafka.groups.recording-service-group}",
             containerFactory = "recordingServiceKafkaListenerContainerFactory"
     )
-    public void listen(EmployeeTrackedHoursDto message,
-                       @Header(KafkaHeaders.RECEIVED_TOPIC) String topic) {
-
+    public void listen(EmployeeTrackedHoursDto employeeTrackedHoursDto,
+                       @Header(KafkaHeaders.RECEIVED_TOPIC) String topic,
+                       @Header(value = KafkaHeaders.EXCEPTION_MESSAGE,
+                               required = false) String exceptionMessage) {
         log.info("Processing recording service notification - topic: {}, recordId: {}, employeeId: {}",
-                topic, message.recordId(), message.employeeId());
-        recordingServiceApiClient.notifyRecordingService(message);
+                topic, employeeTrackedHoursDto.recordId(), employeeTrackedHoursDto.employeeId());
+
+        if (exceptionMessage != null) {
+            log.warn("Trying to notify recording service again, Previous known exception: {}", exceptionMessage);
+        }
+
+        recordingServiceApiClient.notifyRecordingService(employeeTrackedHoursDto);
+        log.info("Recording service notified successfully - employeeId: {}, trackedHours: {}",
+                employeeTrackedHoursDto.employeeId(),
+                employeeTrackedHoursDto.trackedHours());
+
         updateTimeSheetUseCase.updateRecordServiceAcknowledgementStatus(
-                message.recordId(),
+                employeeTrackedHoursDto.recordId(),
                 RecordingServiceAckEnum.NOTIFIED
         );
-        log.info("Recording service notified successfully for recordId: {}", message.recordId());
+        log.info("Timesheet status for recording service acknowledgement set to {} for employee {}",
+                RecordingServiceAckEnum.NOTIFIED,
+                employeeTrackedHoursDto.employeeId());
     }
 
     @DltHandler
-    public void handleDeadLetterMessage(EmployeeTrackedHoursDto message,
+    public void handleDeadLetterMessage(EmployeeTrackedHoursDto employeeTrackedHoursDto,
                                         @Header(KafkaHeaders.RECEIVED_TOPIC) String topic,
-                                        @Header(value = KafkaHeaders.EXCEPTION_MESSAGE, required = false) String errorMessage) {
+                                        @Header(value = KafkaHeaders.EXCEPTION_MESSAGE,
+                                                required = false) String errorMessage) {
 
         log.error("Recording service acknowledgement failed after all retries - topic: {}, recordId: {}, error: {}",
-                topic, message.recordId(), errorMessage);
+                topic, employeeTrackedHoursDto.recordId(), errorMessage);
+
         updateTimeSheetUseCase.updateRecordServiceAcknowledgementStatus(
-                message.recordId(),
+                employeeTrackedHoursDto.recordId(),
                 RecordingServiceAckEnum.FAILED
         );
+        log.warn("Timesheet status for recording service acknowledgement set to {} for employee {}",
+                RecordingServiceAckEnum.FAILED,
+                employeeTrackedHoursDto.employeeId());
     }
 }

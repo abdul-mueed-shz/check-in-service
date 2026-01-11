@@ -20,7 +20,9 @@ public class CheckoutRecordingProducerImpl implements CheckoutRecordingProducer 
 
     @Override
     public void produce(EmployeeTrackedHoursDto employeeTrackedHoursDto) {
-        log.info("Sending email confirmation to employee with tracked hours : {}", employeeTrackedHoursDto);
+        log.info("Queuing a call for legacy recording system to report employee {} with tracked hours : {}",
+                employeeTrackedHoursDto.employeeId(),
+                employeeTrackedHoursDto);
         Message<EmployeeTrackedHoursDto> message = MessageBuilder
                 .withPayload(employeeTrackedHoursDto)
                 .setHeader(
