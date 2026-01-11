@@ -25,7 +25,7 @@ public class CheckoutRecordingConsumer {
     private final RecordingServiceApiClient recordingServiceApiClient;
 
     @RetryableTopic(
-            backoff = @Backoff(delay = 2000L, multiplier = 2.0, maxDelay = 30000L),
+            backoff = @Backoff(delay = 2000L, multiplier = 2.0),
             attempts = "5",
             include = {RecordingServiceException.class, CallNotPermittedException.class}
     )
