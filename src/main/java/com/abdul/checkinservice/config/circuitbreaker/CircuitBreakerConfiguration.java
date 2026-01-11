@@ -63,6 +63,7 @@ public class CircuitBreakerConfiguration {
                 log.info("Circuit breaker '{}' CLOSED - Consumer resumed", circuitBreakerName);
                 listenerContainerManager.resumeListener(listenerId);
             }
+            default -> log.warn("Unhandled circuit breaker state transition: {}", event.getStateTransition());
         }
     }
 }

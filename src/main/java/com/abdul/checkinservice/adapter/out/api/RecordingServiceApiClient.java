@@ -13,9 +13,11 @@ public class RecordingServiceApiClient {
     @CircuitBreaker(name = "${app.services.recording-service.name}")
     public void notifyRecordingService(EmployeeTrackedHoursDto dto) {
         if (Math.random() < 0.7) {
-            throw new RecordingServiceException("Failed to process tracking hours for employee " + dto.employeeId());
+            throw new RecordingServiceException("Service Unavailable ");
         }
-        log.info("Recording service notified successfully for recordId: {}", dto.recordId());
+        log.info("Recording service notified successfully about employee {} with {} tracked hours",
+                dto.employeeId(),
+                dto.trackedHours());
     }
 }
 
