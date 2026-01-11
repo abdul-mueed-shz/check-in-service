@@ -52,15 +52,15 @@ public class CircuitBreakerConfiguration {
 
         switch (event.getStateTransition()) {
             case CLOSED_TO_OPEN, CLOSED_TO_FORCED_OPEN, HALF_OPEN_TO_OPEN -> {
-                log.warn("Circuit breaker '{}' OPEN - Pausing associated consumer", circuitBreakerName);
+                log.warn("Circuit breaker '{}' OPEN - Pausing message consumer", circuitBreakerName);
                 listenerContainerManager.pauseListener(listenerId);
             }
             case OPEN_TO_HALF_OPEN -> {
-                log.info("Circuit breaker '{}' HALF_OPEN - Resuming consumer for testing", circuitBreakerName);
+                log.info("Circuit breaker '{}' HALF_OPEN - Resuming message consumer", circuitBreakerName);
                 listenerContainerManager.resumeListener(listenerId);
             }
             case HALF_OPEN_TO_CLOSED, FORCED_OPEN_TO_CLOSED, FORCED_OPEN_TO_HALF_OPEN -> {
-                log.info("Circuit breaker '{}' CLOSED - Consumer resumed", circuitBreakerName);
+                log.info("Circuit breaker '{}' CLOSED - Resuming message consumer", circuitBreakerName);
                 listenerContainerManager.resumeListener(listenerId);
             }
             default -> log.warn("Unhandled circuit breaker state transition: {}", event.getStateTransition());
