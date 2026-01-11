@@ -27,10 +27,9 @@ public class EmployeeCheckOutUseCaseImpl implements EmployeeCheckOutUseCase {
 
     @Transactional
     @Override
-    public TimeSheetDto checkoutWithDuration(TimeSheetDto existingTimeSheetDto, Integer hoursWorked) {
+    public void checkoutWithDuration(TimeSheetDto existingTimeSheetDto, Integer hoursWorked) {
         TimeSheetDto updatedEmployeeTimeSheet = updateEmployeeTimeSheet(existingTimeSheetDto);
         trackHours(updatedEmployeeTimeSheet, hoursWorked);
-        return updatedEmployeeTimeSheet;
     }
 
     @Transactional

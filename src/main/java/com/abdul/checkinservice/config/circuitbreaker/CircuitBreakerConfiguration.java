@@ -22,7 +22,7 @@ public class CircuitBreakerConfiguration {
     @PostConstruct
     public void registerAllCircuitBreakerEventListeners() {
         appProperties.getAllCircuitBreakerServices().forEach(service -> {
-            if (!service.getCircuitBreakerEnabled()) {
+            if (Boolean.FALSE.equals(service.getCircuitBreakerEnabled())) {
                 log.info("Circuit breaker event handler '{}' is disabled for the service", service.getName());
                 return;
             }
