@@ -2,9 +2,12 @@ server:
   port: 8081
 
 spring:
+  boot:
+    admin:
+      client:
+        url: ${ADMIN.CLIENT.URL:http://localhost:9090}
   application:
     name: check-in-service
-
   datasource:
     url: ${POSTGRES.DB.URL}
     driver-class-name: org.postgresql.Driver
@@ -65,7 +68,15 @@ resilience4j:
         automaticTransitionFromOpenToHalfOpenEnabled: ${CIRCUIT_BREAKER.AUTOMATIC_TRANSITION_FROM_OPEN_TO_HALF_OPEN_ENABLED:true}
 
 logging:
+  file:
+    name: logs/check-in-service.log
   level:
     org.springframework.kafka: INFO
     org.springframework.kafka.retrytopic: DEBUG
     com.abdul.checkinservice: DEBUG
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info,logfile,metrics
