@@ -15,14 +15,14 @@ spring:
     database-platform: org.hibernate.dialect.PostgreSQLDialect
     hibernate:
       ddl-auto: update
-    show-sql: true
+    show-sql: ${JPA.SHOW_SQL:false}
     properties:
       hibernate:
-        format_sql: true
+        format_sql: ${JPA.PROPERTIES.HIBERNATE.FORMAT_SQL:true}
 
   mail:
-    host: smtp.gmail.com
-    port: 587
+    host: ${JAVA.MAIL.HOST:smtp.gmail.com}
+    port: ${JAVA.MAIL.PORT:587}
     username: ${JAVA.MAIL.SENDER.EMAIL}
     password: ${JAVA.MAIL.SENDER.APP.PASSWORD}
     properties:
@@ -50,22 +50,19 @@ app:
     recording-service:
       name: recordingService
       listener-id: recordingServiceListener
-      circuit-breaker-enabled: true
+      circuit-breaker-enabled: ${RECORDING.SERVICE.CIRCUIT_BREAKER.ENABLED:true}
       url: ${RECORDING.SERVICE.URL:http://localhost:8090}
 
 resilience4j:
   circuitbreaker:
     configs:
       default:
-        slidingWindowSize: 3
-        minimumNumberOfCalls: 3
-        failureRateThreshold: 80
-        waitDurationInOpenState: 10s
-        permittedNumberOfCallsInHalfOpenState: 2
-        automaticTransitionFromOpenToHalfOpenEnabled: true
-    instances:
-      recordingService:
-        baseConfig: default
+        slidingWindowSize: ${CIRCUIT_BREAKER.SLIDING.WINDOW.SIZE:3}
+        minimumNumberOfCalls: ${CIRCUIT_BREAKER.MINIMUM_NUMBER_OF_CALLS:3}
+        failureRateThreshold: ${CIRCUIT_BREAKER.FAILURE_THRESHOLD:80}
+        waitDurationInOpenState: ${CIRCUIT_BREAKER.WAIT_DURATION_IN_OPEN_STATE:10s}
+        permittedNumberOfCallsInHalfOpenState: ${CIRCUIT_BREAKER.PERMITTED_NUMBER_OF_CALLS_IN_HALF_OPEN_STATE:2}
+        automaticTransitionFromOpenToHalfOpenEnabled: ${CIRCUIT_BREAKER.AUTOMATIC_TRANSITION_FROM_OPEN_TO_HALF_OPEN_ENABLED:true}
 
 logging:
   level:

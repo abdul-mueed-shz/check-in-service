@@ -21,7 +21,7 @@ public class AppProperties {
 
     @Data
     public static class Shift {
-        private Float maxDuration;
+        private Integer maxDuration;
     }
 
     @Data
