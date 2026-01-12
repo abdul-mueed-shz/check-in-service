@@ -1,6 +1,6 @@
 # Check-In Service
 
-This is a Spring Boot application for managing employee check-ins and timesheets.
+This is a Spring Boot application for managing employee check-ins and check-outs.
 **Service architecture** and a **short explanation** documents are provided in the **docs'** folder. Kindly refer to
 them.
 
@@ -52,7 +52,7 @@ The application will start on the default port (usually 8080, unless configured 
 
 ### Record Employee Time Data
 
-Records a check-in or time entry for a specific employee.
+Records a check-in or check-out for a specific employee.
 
 * **URL**: `/api/v1/timesheets/{employeeId}/record`
 * **Method**: `POST`
