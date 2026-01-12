@@ -1,6 +1,8 @@
 # Check-In Service
 
 This is a Spring Boot application for managing employee check-ins and timesheets.
+**Service architecture** and a **short explanation** documents are provided in the **docs'** folder. Kindly refer to
+them.
 
 ## Prerequisites
 
